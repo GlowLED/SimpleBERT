@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-class Embedding(nn.Module):
+class TokenEmbedding(nn.Module):
     def __init__(self, vocab_size, d_emb):
         super().__init__()
         self.embedding = nn.Embedding(vocab_size, d_emb)
@@ -16,9 +16,11 @@ class Embedding(nn.Module):
         o = self.embedding(x)
         return o
 
+
 class PostionalEncoding(nn.Module):
     '''
     Postional Encoding for BERT. It's a learnable embedding.
+    Combine Sequence encoding.
     '''
     def __init__(self, d, max_len):
         super().__init__()
@@ -34,11 +36,28 @@ class PostionalEncoding(nn.Module):
         Return:
             o: (batch_size, seq_len, d)
         '''
-        seq_len = x.size(1)
+        batch_size, seq_len = x.size(0), x.size(1)
         pos = torch.arange(0, seq_len, dtype=torch.long, device=x.device)        
-        pos_emb = self.pos_emb(pos).unsqueeze(0)    #(1, seq_len, d_model)
-        o = x + pos_emb     # pos_emb will be broadcasted to (batch_size, seq_len, d_model).
+        emb = torch.repeat_interleave(self.pos_emb(pos).unsqueeze(0), batch_size, dim=0)
+        o = x + emb
         return o
+        
+
+class SegmentEmbedding(nn.Module):
+    def __init__(self, d):
+        super().__init__()
+        self.emb = nn.Embedding(2, d)
+    
+    def forward(self, segment_ids):
+        '''
+        Args:
+            x: (batch_size, seq_len, d)
+            segment_ids: (batch_size, seq_len)
+        Return:
+            o: (batch_size, seq_len, d)
+        '''
+        return self.emb(segment_ids)
+        
 
 
 class AddNorm(nn.Module):
