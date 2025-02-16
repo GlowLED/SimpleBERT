@@ -59,7 +59,6 @@ class SegmentEmbedding(nn.Module):
         return self.emb(segment_ids)
         
 
-
 class AddNorm(nn.Module):
     def __init__(self, d):
         super().__init__()
@@ -99,7 +98,7 @@ class EncoderBlock(nn.Module):
             o: (batch_size, seq_len, d_model)
         '''
         
-        y = self.attn(x, x, x, attn_mask)[0]
+        y, _ = self.attn(x, x, x, attn_mask)
         x = self.addnorm1(x, y)
         y = self.ffn(x)
         o = self.addnorm2(x, y)

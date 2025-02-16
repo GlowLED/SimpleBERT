@@ -35,3 +35,22 @@ def generate_segment_ids(x, sep_idx=2):
     
     return segment_ids
 
+
+def padding(seq_list, pad_idx=0):
+    '''
+    Args:
+        seq_list: list of list of int, each int is a token idx
+        pad_idx: int
+    
+    Returns:
+        padded_seq: tensor [batch_size, max_len]
+        max_len: int
+    '''
+    max_len = max([len(seq) for seq in seq_list])
+    
+    padded_seq = torch.ones(len(seq_list), max_len, dtype=torch.long) * pad_idx
+    
+    for i, seq in enumerate(seq_list):
+        padded_seq[i, :len(seq)] = torch.tensor(seq)
+    
+    return padded_seq, max_len

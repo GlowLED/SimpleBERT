@@ -15,6 +15,7 @@ class BERT(nn.Module):
         
         self.encoder = Encoder(d_model, d_ff, n_head, dropout, n_layer)
         self.linear = nn.Linear(d_model, vocab_size)
+    
     def forward(self, x, pad_idx=0, cls_idx=1, sep_idx=2):
         '''
         Args:
